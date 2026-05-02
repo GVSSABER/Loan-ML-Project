@@ -16,9 +16,11 @@ loan_term = st.number_input("Loan Amount Term")
 credit_history = st.selectbox("Credit History", [1.0, 0.0])
 property_area = st.selectbox("Property Area", ["Urban", "Semiurban", "Rural"])
 
-if st.button("Predict Loan Status"):
+# API URL (IMPORTANT FIX)
+url = "https://loan-ml-project.onrender.com/predict"
 
-    url = "http://127.0.0.1:8001/predict"
+# Predict button
+if st.button("Predict Loan Status"):
 
     payload = {
         "Gender": gender,
@@ -40,13 +42,15 @@ if st.button("Predict Loan Status"):
         if response.status_code == 200:
             result = response.json()
 
+            st.subheader("Prediction Result")
+
             if result["prediction"] == 1:
-                st.success(f"Approved ✅ (Confidence: {result['confidence']:.2f})")
+                st.success(f"✅ Approved (Confidence: {result['confidence']:.2f})")
             else:
-                st.error(f"Rejected ❌ (Confidence: {result['confidence']:.2f})")
+                st.error(f"❌ Rejected (Confidence: {result['confidence']:.2f})")
 
         else:
-            st.error("API Error")
+            st.error("❌ API Error from backend")
 
     except Exception as e:
-        st.error(f"Connection Error: {e}")
+        st.error(f"❌ Connection Error: {e}")
