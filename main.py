@@ -3,15 +3,19 @@ from pydantic import BaseModel
 import pandas as pd
 import joblib
 
-app = FastAPI()
+app = FastAPI(title="Loan ML API", version="1.0")
 
+# Load model
 model = joblib.load("loan_pipeline.pkl")
 
 
-# ✅ ADDED ROOT ROUTE (THIS FIXES YOUR ERROR)
+# ✅ Root endpoint (health check)
 @app.get("/")
 def home():
-    return {"message": "Loan ML API is running"}
+    return {
+        "message": "Loan ML API is running",
+        "status": "success"
+    }
 
 
 class LoanInput(BaseModel):
@@ -28,6 +32,7 @@ class LoanInput(BaseModel):
     Property_Area: str
 
 
+# ✅ Prediction endpoint
 @app.post("/predict")
 def predict(data: LoanInput):
 
