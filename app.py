@@ -16,28 +16,31 @@ loan_term = st.number_input("Loan Amount Term")
 credit_history = st.selectbox("Credit History", [1.0, 0.0])
 property_area = st.selectbox("Property Area", ["Urban", "Semiurban", "Rural"])
 
-# API URL (IMPORTANT FIX)
+# API URL
 url = "https://loan-ml-project.onrender.com/predict"
 
-# Predict button
 if st.button("Predict Loan Status"):
 
     payload = {
-        "Gender": gender,
-        "Married": married,
-        "Dependents": dependents,
-        "Education": education,
-        "Self_Employed": self_employed,
-        "ApplicantIncome": app_income,
-        "CoapplicantIncome": coapp_income,
-        "LoanAmount": loan_amount,
-        "Loan_Amount_Term": loan_term,
-        "Credit_History": credit_history,
-        "Property_Area": property_area
+        "Gender": str(gender),
+        "Married": str(married),
+        "Dependents": str(dependents),
+        "Education": str(education),
+        "Self_Employed": str(self_employed),
+        "ApplicantIncome": float(app_income),
+        "CoapplicantIncome": float(coapp_income),
+        "LoanAmount": float(loan_amount),
+        "Loan_Amount_Term": float(loan_term),
+        "Credit_History": float(credit_history),
+        "Property_Area": str(property_area)
     }
 
     try:
         response = requests.post(url, json=payload)
+
+        # 🔥 DEBUG (IMPORTANT)
+        st.write("Status Code:", response.status_code)
+        st.write("Response:", response.text)
 
         if response.status_code == 200:
             result = response.json()
@@ -50,7 +53,7 @@ if st.button("Predict Loan Status"):
                 st.error(f"❌ Rejected (Confidence: {result['confidence']:.2f})")
 
         else:
-            st.error("❌ API Error from backend")
+            st.error("❌ API failed (check status code above)")
 
     except Exception as e:
         st.error(f"❌ Connection Error: {e}")
