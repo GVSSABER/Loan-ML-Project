@@ -1,8 +1,6 @@
-pandas
+scikit-learn==1.3.2
 numpy
-scikit-learn
-mlflow
-joblib
+pandas
 fastapi
 uvicorn
-streamlit
+joblib
