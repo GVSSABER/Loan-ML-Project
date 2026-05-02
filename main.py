@@ -8,7 +8,7 @@ app = FastAPI(title="Loan ML API", version="1.0")
 
 # Load model safely
 try:
-    model = joblib.load("loan_pipeline.pkl")
+    model = joblib.load("loan_pipeline1.pkl")
 except Exception as e:
     model = None
     print("Model loading failed:", e)
