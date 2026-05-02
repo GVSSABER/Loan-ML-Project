@@ -64,5 +64,3 @@ X_train, X_test, y_train, y_test = train_test_split(
 joblib.dump(model, "loan_pipeline.pkl")
 
 print("Local model saved ✅")
-
-print(mlflow.get_tracking_uri())
