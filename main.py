@@ -8,6 +8,12 @@ app = FastAPI()
 model = joblib.load("loan_pipeline.pkl")
 
 
+# ✅ ADDED ROOT ROUTE (THIS FIXES YOUR ERROR)
+@app.get("/")
+def home():
+    return {"message": "Loan ML API is running"}
+
+
 class LoanInput(BaseModel):
     Gender: str
     Married: str
