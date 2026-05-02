@@ -2,14 +2,18 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import pandas as pd
 import joblib
+import traceback
 
 app = FastAPI(title="Loan ML API", version="1.0")
 
-# Load model
-model = joblib.load("loan_pipeline.pkl")
+# Load model safely
+try:
+    model = joblib.load("loan_pipeline.pkl")
+except Exception as e:
+    model = None
+    print("Model loading failed:", e)
 
 
-# ✅ Root endpoint (health check)
 @app.get("/")
 def home():
     return {
@@ -32,30 +36,35 @@ class LoanInput(BaseModel):
     Property_Area: str
 
 
-# ✅ Prediction endpoint
 @app.post("/predict")
 def predict(data: LoanInput):
 
-    features = pd.DataFrame([{
-        "Gender": data.Gender,
-        "Married": data.Married,
-        "Dependents": data.Dependents,
-        "Education": data.Education,
-        "Self_Employed": data.Self_Employed,
-        "ApplicantIncome": data.ApplicantIncome,
-        "CoapplicantIncome": data.CoapplicantIncome,
-        "LoanAmount": data.LoanAmount,
-        "Loan_Amount_Term": data.Loan_Amount_Term,
-        "Credit_History": data.Credit_History,
-        "Property_Area": data.Property_Area
-    }])
+    try:
+        if model is None:
+            return {"error": "Model not loaded on server"}
 
-    prediction = model.predict(features)[0]
+        # Convert input safely
+        input_data = data.dict()
 
-    confidence = max(model.predict_proba(features)[0])
+        features = pd.DataFrame([input_data])
 
-    return {
-        "prediction": int(prediction),
-        "result": "Approved" if prediction == 1 else "Rejected",
-        "confidence": float(confidence)
-    }
+        # Prediction
+        prediction = model.predict(features)[0]
+
+        # Confidence (safe handling)
+        if hasattr(model, "predict_proba"):
+            confidence = max(model.predict_proba(features)[0])
+        else:
+            confidence = 0.0
+
+        return {
+            "prediction": int(prediction),
+            "result": "Approved" if prediction == 1 else "Rejected",
+            "confidence": float(confidence)
+        }
+
+    except Exception as e:
+        return {
+            "error": str(e),
+            "trace": traceback.format_exc()
+        }
