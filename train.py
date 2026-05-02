@@ -1,8 +1,6 @@
 import pandas as pd
 import joblib
-import os
-import mlflow
-import mlflow.sklearn
+
 
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
@@ -60,39 +58,6 @@ model = Pipeline([
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
-
-# ------------------------
-# 🚀 FIXED MLFLOW (IMPORTANT CHANGE)
-# ------------------------
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MLRUNS_DIR = os.path.join(BASE_DIR, "mlruns")
-
-print("MLflow tracking folder:", MLRUNS_DIR)
-
-# ✔ USE ONLY ONE CONSISTENT PATH
-mlflow.set_tracking_uri(f"file:///{MLRUNS_DIR}")
-mlflow.set_experiment("Loan_Approval_Experiment")
-
-# ------------------------
-# TRAIN + LOG
-# ------------------------
-with mlflow.start_run():
-
-    model.fit(X_train, y_train)
-
-    accuracy = model.score(X_test, y_test)
-
-    print("Accuracy:", accuracy)
-
-    mlflow.log_param("model", "LogisticRegression")
-    mlflow.log_param("max_iter", 1000)
-
-    mlflow.log_metric("accuracy", accuracy)
-
-    mlflow.sklearn.log_model(model, "model")
-
-    print("MLflow run logged successfully ✅")
-
 # ------------------------
 # SAVE MODEL
 # ------------------------
